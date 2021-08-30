@@ -1,0 +1,262 @@
+package com.unscarred.lorgnette;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
+import android.media.ImageReader;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.util.Size;
+import android.view.Surface;
+import android.view.TextureView;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+public class CameraLOLLIPOP
+{
+	private Context                 Base_Context;
+	private CoreClass               Core;
+
+	private TextureView             Texture_View;
+	private Size                    Preview_Size;
+	private Size                    Preview_Sizes[] = null;
+	private CameraDevice            Camera_Device;
+	private CaptureRequest.Builder  Capture_Request;
+	private CameraCaptureSession    Camera_Capture_Session;
+
+	CameraLOLLIPOP(Context context, CoreClass core)
+	{
+		Base_Context = context;
+		Core = core;
+	}
+
+	private Thread Camera_Thread = new Thread()
+	{
+		@Override public void run()
+		{
+		}
+	};
+
+	private Handler Camera_Thread_Handler = new Handler()
+	{
+		@Override public void handleMessage(Message message)
+		{
+			Log.d("Nic Says", "Message from Camera_Thread_Handler: " + message.toString());
+		}
+	};
+
+	private void Get_Picture()
+	{
+		if(Camera_Device != null)
+		{
+			CameraManager Camera_Manager = (CameraManager) Base_Context.getSystemService(Context.CAMERA_SERVICE);
+
+			try
+			{
+				CameraCharacteristics Camera_Characteristics = Camera_Manager.getCameraCharacteristics(Camera_Device.getId());
+				Preview_Sizes = Camera_Characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
+
+				int preview_width  = 640;
+				int preview_height = 480;
+
+				if(Preview_Size != null && Preview_Sizes.length > 0)
+				{
+					preview_width = Preview_Sizes[0].getWidth();
+					preview_height = Preview_Sizes[0].getHeight();
+				}
+
+				ImageReader   reader           = ImageReader.newInstance(preview_width, preview_height, ImageFormat.JPEG, 1);
+				List<Surface> Preview_Surfaces = new ArrayList<Surface>(2);
+				Preview_Surfaces.add(reader.getSurface());
+				Preview_Surfaces.add(new Surface(Texture_View.getSurfaceTexture()));
+				Capture_Request = Camera_Device.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+				Capture_Request.addTarget(reader.getSurface());
+				Capture_Request.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+
+				Capture_Request.set(CaptureRequest.JPEG_ORIENTATION,
+				                    Core.Camera_Handler.Get_Degrees_From_Rotation(((Activity)Base_Context).getWindowManager().getDefaultDisplay().getRotation()));
+
+				ImageReader.OnImageAvailableListener Image_Available_Listener = new ImageReader.OnImageAvailableListener()
+				{
+					@Override public void onImageAvailable(ImageReader Image_Reader)
+					{
+						Image      image       = Image_Reader.acquireLatestImage();
+						ByteBuffer Byte_Buffer = image.getPlanes()[0].getBuffer();
+						byte[]     bytes       = new byte[Byte_Buffer.capacity()];
+						Byte_Buffer.get(bytes);
+
+						Core.File_Handler.Save_Preview_to_File(bytes);
+
+						image.close();
+					}
+				};
+
+				Camera_Thread.start();
+
+				reader.setOnImageAvailableListener(Image_Available_Listener, Camera_Thread_Handler);
+
+				Camera_Device.createCaptureSession(Preview_Surfaces, Camera_Capture_Session_State_Callback, Camera_Thread_Handler);
+			}
+			catch(CameraAccessException e)
+			{
+				System.err.println("Error in Camera_LOLLIPOP: Get_Picture:");
+				System.err.println("Caught Camera Access Exception: " + e.getMessage());
+			}
+		}
+	}
+
+	private CameraCaptureSession.StateCallback Camera_Capture_Session_State_Callback = new CameraCaptureSession.StateCallback()
+	{
+		@Override public void onConfigured(CameraCaptureSession session)
+		{
+			try
+			{
+				session.capture(Capture_Request.build(), Camera_Capture_Session_Capture_Callback, Camera_Thread_Handler);
+			}
+			catch(CameraAccessException e)
+			{
+				System.err.println("Error in Camera_LOLLIPOP: Get_Picture: createCaptureSession: onConfigured:");
+				System.err.println("Caught Camera Access Exception: " + e.getMessage());
+			}
+		}
+
+		@Override public void onConfigureFailed(CameraCaptureSession session){}
+	};
+
+	private CameraCaptureSession.CaptureCallback Camera_Capture_Session_Capture_Callback = new CameraCaptureSession.CaptureCallback()
+	{
+		@Override public void onCaptureStarted(CameraCaptureSession Camera_Capture_Session, CaptureRequest Capture_Request, long timestamp, long frameNumber)
+		{
+			super.onCaptureStarted(Camera_Capture_Session, Capture_Request, timestamp, frameNumber);
+		}
+
+		@Override public void onCaptureCompleted(CameraCaptureSession Camera_Capture_Session, CaptureRequest Capture_Request, TotalCaptureResult Total_Capture_Result)
+		{
+			super.onCaptureCompleted(Camera_Capture_Session, Capture_Request, Total_Capture_Result);
+
+			Start_Camera();
+		}
+	};
+
+
+	public void Open_Camera()
+	{
+		CameraManager Camera_Manager = (CameraManager)Base_Context.getSystemService(Context.CAMERA_SERVICE);
+
+		try
+		{
+			String camera_id = Camera_Manager.getCameraIdList()[0];
+			CameraCharacteristics Camera_Characteristics = Camera_Manager.getCameraCharacteristics(camera_id);
+			StreamConfigurationMap Stream_Configuration_Map = Camera_Characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+			Preview_Size = Stream_Configuration_Map.getOutputSizes(SurfaceTexture.class)[0];
+			Camera_Manager.openCamera(camera_id, Camera_State_Callback, null);
+		}
+		catch(NullPointerException e)
+		{
+			System.err.println("Error in Camera_LOLLIPOP: Open_Camera:");
+			System.err.println("Caught Null Pointer Exception: " + e.getMessage());
+		}
+		catch(CameraAccessException e)
+		{
+			System.err.println("Error in Camera_LOLLIPOP: Open_Camera:");
+			System.err.println("Caught Camera Access Exception: " + e.getMessage());
+		}
+		catch(SecurityException e)
+		{
+			System.err.println("Error in Camera_LOLLIPOP: Open_Camera:");
+			System.err.println("Caught Security Exception: " + e.getMessage());
+		}
+	}
+
+	private TextureView.SurfaceTextureListener Surface_Texture_Listener = new TextureView.SurfaceTextureListener()
+	{
+		@Override public void onSurfaceTextureAvailable(SurfaceTexture Surface_Texture, int width, int height){ Open_Camera(); }
+		@Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface){ return false; }
+
+		@Override public void onSurfaceTextureSizeChanged(SurfaceTexture Surface_Texture, int width, int height){}
+		@Override public void onSurfaceTextureUpdated(SurfaceTexture surface){}
+	};
+
+	private CameraDevice.StateCallback Camera_State_Callback = new CameraDevice.StateCallback()
+	{
+		@Override public void onOpened(CameraDevice camera_device)
+		{
+			Camera_Device = camera_device;
+			Start_Camera();
+		}
+
+		@Override public void onDisconnected(CameraDevice camera_device){}
+		@Override public void onError(CameraDevice camera_device, int error){}
+	};
+
+
+	private void Start_Camera()
+	{
+		if(Camera_Device != null && Texture_View.isAvailable() && Preview_Size != null)
+		{
+			SurfaceTexture Surface_Texture = Texture_View.getSurfaceTexture();
+
+			if(Surface_Texture != null)
+			{
+				Surface_Texture.setDefaultBufferSize(Preview_Size.getWidth(), Preview_Size.getHeight());
+				Surface surface = new Surface(Surface_Texture);
+
+				try
+				{
+					Capture_Request = Camera_Device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+					Capture_Request.addTarget(surface);
+
+					Camera_Device.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback()
+					{
+						@Override public void onConfigured(CameraCaptureSession camera_capture_session)
+						{
+							Camera_Capture_Session = camera_capture_session;
+
+							Get_Changed_Preview();
+						}
+
+						@Override public void onConfigureFailed(CameraCaptureSession camera_capture_session){}
+					}, null);
+				}
+				catch(CameraAccessException e)
+				{
+					System.err.println("Error in Camera_LOLLIPOP: Start_Camera:");
+					System.err.println("Caught Camera Access Exception: " + e.getMessage());
+				}
+			}
+		}
+	}
+
+	void Get_Changed_Preview()
+	{
+		if(Camera_Device != null)
+		{
+			Capture_Request.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+
+			try
+			{
+				Camera_Capture_Session.setRepeatingRequest(Capture_Request.build(), null, Camera_Thread_Handler);
+			}
+			catch(CameraAccessException e)
+			{
+				System.err.println("Error in Camera_LOLLIPOP: Get_Changed_Preview:");
+				System.err.println("Caught Camera Access Exception: " + e.getMessage());
+			}
+		}
+	}
+}

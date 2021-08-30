@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width = "match_parent"
+            android:layout_height = "match_parent"
+            xmlns:android = "http://schemas.android.com/apk/res/android" android:padding = "50dp" android:background = "@color/layout_background"
+            android:fillViewport="true">
+	<LinearLayout
+		android:orientation = "vertical"
+		android:layout_width = "fill_parent"
+		android:layout_height = "wrap_content"
+		android:gravity = "center_vertical|center_horizontal">
+		<TextView
+			android:layout_width = "wrap_content"
+			android:layout_height = "wrap_content"
+			android:textAppearance = "?android:attr/textAppearanceSmall"
+			android:text = "@string/heading"
+			android:id = "@+id/textView"
+			android:layout_gravity = "center_horizontal"
+			android:textSize = "25dp"
+			android:background = "@drawable/heading_background_shape"
+			android:padding = "5dp"
+            android:textStyle = "bold" android:textColor = "@color/heading_text" />
+
+        <requestFocus />
+
+        <RelativeLayout
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:layout_marginTop="50dp">
+			<LinearLayout
+                android:orientation = "horizontal"
+                android:layout_width = "wrap_content"
+                android:layout_height = "wrap_content" android:layout_alignParentTop = "false" android:layout_alignParentEnd = "false" android:layout_alignParentStart = "false"
+                android:layout_centerHorizontal = "true"
+                >
+				<LinearLayout
+					android:orientation = "vertical"
+					android:layout_width = "wrap_content"
+					android:layout_height = "wrap_content" android:layout_marginRight = "20dp">
+					<TextView
+						android:layout_width = "wrap_content"
+						android:layout_height = "wrap_content"
+						android:text = "Save In:"
+						android:id = "@+id/textView2" android:textSize = "18sp" android:textColor = "@color/sub_heading_text" android:paddingTop = "24dp" />
+					<TextView
+						android:layout_width = "wrap_content"
+						android:layout_height = "wrap_content"
+						android:textAppearance = "?android:attr/textAppearanceSmall"
+						android:text = "Location:"
+						android:id = "@+id/textView3" android:textSize = "14sp" android:textColor = "@color/text_hint" android:textStyle = "italic" />
+				</LinearLayout>
+				<LinearLayout
+					android:orientation = "vertical"
+					android:layout_width = "wrap_content"
+					android:layout_height = "wrap_content">
+					<ImageButton
+						android:layout_width = "44dp"
+						android:layout_height = "44dp"
+						android:id = "@+id/settings_button_folder" android:background = "@drawable/button_shape" android:src = "@drawable/folder_icon"
+						android:scaleType = "fitXY" />
+					<TextView
+						android:layout_width = "wrap_content"
+						android:layout_height = "wrap_content"
+						android:textAppearance = "?android:attr/textAppearanceSmall"
+						android:text = "Small Text"
+						android:id = "@+id/settings_location_text" android:textSize = "14sp" android:paddingTop = "3dp" android:textColor = "@color/text_hint" android:textStyle = "italic" />
+				</LinearLayout>
+			</LinearLayout>
+		</RelativeLayout>
+
+        <Button
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:text = "Done"
+            android:id = "@+id/settings_button_done" android:textColor = "@color/sub_heading_text" android:background = "@drawable/button_shape"
+            android:textSize = "16sp"
+            android:layout_marginTop="50dp"/>
+
+    </LinearLayout >
+</ScrollView>

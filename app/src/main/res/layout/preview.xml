@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android = "http://schemas.android.com/apk/res/android"
+                android:layout_width = "wrap_content"
+                android:layout_height = "wrap_content" >
+	<FrameLayout android:orientation="vertical"
+	             android:id="@+id/preview_layout"
+	             android:layout_width="fill_parent"
+	             android:layout_height="fill_parent">
+	</FrameLayout>
+	<FrameLayout
+		android:layout_width = "fill_parent"
+		android:layout_height = "fill_parent" android:id = "@+id/preview_icon_layout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginBottom="20dp">
+
+            <FrameLayout
+                android:layout_width="100dp"
+                android:layout_height="100dp">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/camera_button_bg"
+                    android:id="@+id/preview_photo_button_highlight"
+                    android:layout_gravity="center"
+                    >
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="74dp"
+                    android:layout_height="74dp"
+                    android:background="@drawable/camera_button"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:id="@+id/preview_photo_button"
+                    android:layout_margin="13dp">
+                </LinearLayout>
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/preview_settings_layout"
+            android:layout_gravity="top|right"
+            android:padding="5dp">
+
+            <ImageButton
+                android:layout_width = "50dp"
+                android:layout_height = "50dp"
+                android:id = "@+id/preview_settings_button"
+                android:src = "@drawable/cog_icon" android:scaleType = "centerInside"
+                android:background = "#00ffffff"
+                android:clickable="true"
+                android:paddingBottom="5dp"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:paddingBottom="5dp"
+                android:background="@android:drawable/ic_popup_sync"
+                android:id="@+id/preview_swap_camera">
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center_horizontal"
+                android:id="@+id/preview_flash_mode_layout">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:id="@+id/textView4"
+                    android:text="Flash"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:text="Mode"
+                    android:id="@+id/preview_flash_mode_text_view"
+                    android:gravity="center_vertical"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </FrameLayout>
+</RelativeLayout>
+

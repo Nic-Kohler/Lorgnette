@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+	android:layout_width = "match_parent"
+	android:layout_height = "match_parent" xmlns:android = "http://schemas.android.com/apk/res/android" android:id = "@+id/confirm_layout">
+	<LinearLayout
+		android:orientation = "horizontal"
+		android:layout_width = "wrap_content"
+		android:layout_height = "wrap_content" android:layout_alignParentBottom = "true" android:layout_centerHorizontal = "true" android:layout_marginBottom = "5dp">
+		<Button
+			android:layout_width = "wrap_content"
+			android:layout_height = "wrap_content"
+			android:text = "Save"
+			android:id = "@+id/confirm_button_save" android:background = "@drawable/button_shape" android:textSize = "16sp" android:textColor = "@color/sub_heading_text"
+			android:layout_marginRight = "25dp" />
+		<Button android:layout_width = "wrap_content" android:layout_height = "wrap_content" android:text = "Delete" android:id = "@+id/confirm_button_delete"
+		        android:background = "@drawable/button_shape" android:textSize = "16sp" android:textColor = "@color/sub_heading_text" />
+	</LinearLayout>
+</RelativeLayout>
